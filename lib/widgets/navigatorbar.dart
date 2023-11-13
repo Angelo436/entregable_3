@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:notes_api_crud_app/models/note_model.dart';
-import 'package:notes_api_crud_app/services/notes_service.dart';
+import 'package:notes_api_crud_app/models/student.dart';
+import 'package:notes_api_crud_app/services/student_service.dart';
 import 'package:provider/provider.dart';
 
-import '../providers/actual_option_provider.dart';
+import '../providers/actual_option.dart';
 
 class CustomNavigatorBar extends StatelessWidget {
   const CustomNavigatorBar({super.key});
@@ -12,7 +12,7 @@ class CustomNavigatorBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final ActualOptionProvider actualOptionProvider =
         Provider.of<ActualOptionProvider>(context);
-    final NotesService noteService = Provider.of(context, listen: false);
+    final StudentService studentService = Provider.of(context, listen: false);
     final currentIndex = actualOptionProvider.selectedOption;
 
     return BottomNavigationBar(
@@ -20,15 +20,16 @@ class CustomNavigatorBar extends StatelessWidget {
       currentIndex: currentIndex,
       onTap: (int i) {
         if (i == 1) {
-          noteService.selectedNote = Note(title: '', description: '');
+          studentService.selectedStudent =
+              Student(nombre: '', apellido: '', edad: 0);
         }
         actualOptionProvider.selectedOption = i;
       },
       //Items
       items: const <BottomNavigationBarItem>[
-        BottomNavigationBarItem(icon: Icon(Icons.list), label: "Listar Notas"),
+        BottomNavigationBarItem(icon: Icon(Icons.groups), label: "Estudiantes"),
         BottomNavigationBarItem(
-            icon: Icon(Icons.post_add_rounded), label: "Crear Nota")
+            icon: Icon(Icons.person_add), label: "Agregar estudiante")
       ],
     );
   }

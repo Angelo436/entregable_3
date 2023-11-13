@@ -1,68 +1,82 @@
 import 'package:flutter/material.dart';
-import 'package:notes_api_crud_app/services/notes_service.dart';
+import 'package:notes_api_crud_app/services/student_service.dart';
 import 'package:provider/provider.dart';
 
-import '../providers/actual_option_provider.dart';
-import '../providers/notes_form_provider.dart';
+import '../providers/actual_option.dart';
+import '../providers/student_form.dart';
 
-class CreateNoteScreen extends StatelessWidget {
-  const CreateNoteScreen({Key? key}) : super(key: key);
+class CreateStudentScreen extends StatelessWidget {
+  const CreateStudentScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final NotesService noteService = Provider.of(context);
+    final StudentService studentService = Provider.of(context);
 
     //Creando un provider solo enfocado al formulario
     return ChangeNotifierProvider(
-        create: (_) => NotesFormProvider(noteService.selectedNote),
-        child: _CreateForm(noteService: noteService));
+        create: (_) => StudentFormProvider(studentService.selectedStudent),
+        child: _CreateForm(studentService: studentService));
   }
 }
 
 class _CreateForm extends StatelessWidget {
-  final NotesService noteService;
+  final StudentService studentService;
 
-  const _CreateForm({required this.noteService});
+  const _CreateForm({required this.studentService});
 
   @override
   Widget build(BuildContext context) {
-    final NotesFormProvider notesFormProvider =
-        Provider.of<NotesFormProvider>(context);
+    final StudentFormProvider studentFormProvider =
+        Provider.of<StudentFormProvider>(context);
 
-    final note = notesFormProvider.note;
+    final student = studentFormProvider.student;
 
     final ActualOptionProvider actualOptionProvider =
         Provider.of<ActualOptionProvider>(context, listen: false);
     return Form(
-      key: notesFormProvider.formKey,
+      key: studentFormProvider.formKey,
       autovalidateMode: AutovalidateMode.onUserInteraction,
       child: Column(
         children: [
           TextFormField(
             autocorrect: false,
             keyboardType: TextInputType.emailAddress,
-            initialValue: note.title,
+            initialValue: student.nombre,
             decoration: const InputDecoration(
-                hintText: 'Construir Apps',
-                labelText: 'Titulo',
+                hintText: 'Ingrese su nombre',
+                labelText: 'Nombre',
                 contentPadding:
                     EdgeInsets.symmetric(vertical: 8, horizontal: 8)),
-            onChanged: (value) => notesFormProvider.note.title = value,
+            onChanged: (value) => studentFormProvider.student.nombre = value,
             validator: (value) {
               return value != '' ? null : 'El campo no debe estar vacío';
             },
           ),
           const SizedBox(height: 30),
           TextFormField(
-            maxLines: 10,
             autocorrect: false,
-            initialValue: note.description,
-            // keyboardType: TextInputType.emailAddress,
+            initialValue: student.apellido,
+            keyboardType: TextInputType.emailAddress,
             decoration: const InputDecoration(
-              hintText: 'Aprender sobre Dart...',
-              labelText: 'Descripción',
+              hintText: 'Ingrese su apellido',
+              labelText: 'Apellido',
             ),
-            onChanged: (value) => note.description = value,
+            onChanged: (value) => student.apellido = value,
+            validator: (value) {
+              return (value != null) ? null : 'El campo no puede estar vacío';
+            },
+          ),
+          const SizedBox(height: 30),
+          TextFormField(
+            maxLines: 1,
+            autocorrect: false,
+            initialValue: "",
+            keyboardType: TextInputType.number,
+            decoration: const InputDecoration(
+              hintText: 'Ingrese su edad',
+              labelText: 'Edad',
+            ),
+            onChanged: (value) => student.edad = int.tryParse(value)!,
             validator: (value) {
               return (value != null) ? null : 'El campo no puede estar vacío';
             },
@@ -74,21 +88,22 @@ class _CreateForm extends StatelessWidget {
             disabledColor: Colors.grey,
             elevation: 0,
             color: Colors.deepPurple,
-            onPressed: noteService.isSaving
+            onPressed: studentService.isSaving
                 ? null
                 : () async {
                     //Quitar teclado al terminar
                     FocusScope.of(context).unfocus();
 
-                    if (!notesFormProvider.isValidForm()) return;
-                    await noteService.createOrUpdate(notesFormProvider.note);
+                    if (!studentFormProvider.isValidForm()) return;
+                    await studentService
+                        .createOrUpdate(studentFormProvider.student);
                     actualOptionProvider.selectedOption = 0;
                   },
             child: Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 80, vertical: 15),
                 child: Text(
-                  noteService.isLoading ? 'Espere' : 'Ingresar',
+                  studentService.isLoading ? 'Espere' : 'Ingresar',
                   style: const TextStyle(color: Colors.white),
                 )),
           )

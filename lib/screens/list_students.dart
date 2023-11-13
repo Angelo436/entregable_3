@@ -1,47 +1,48 @@
 import 'package:flutter/material.dart';
-import 'package:notes_api_crud_app/services/notes_service.dart';
+import 'package:notes_api_crud_app/services/student_service.dart';
 import 'package:provider/provider.dart';
 
-import '../providers/actual_option_provider.dart';
+import '../providers/actual_option.dart';
 
-class ListNotesScreen extends StatelessWidget {
-  const ListNotesScreen({Key? key}) : super(key: key);
+class ListStudentScreen extends StatelessWidget {
+  const ListStudentScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return _ListNotes();
+    return _ListStudent();
   }
 }
 
-class _ListNotes extends StatelessWidget {
+class _ListStudent extends StatelessWidget {
   void displayDialog(
-      BuildContext context, NotesService noteService, String id) {
+      BuildContext context, StudentService studentService, String id) {
     showDialog(
         barrierDismissible: false,
         context: context,
         builder: (context) {
           return AlertDialog(
             elevation: 5,
-            title: const Text('Alerta!'),
+            title: const Text('Cuidado!'),
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadiusDirectional.circular(10)),
             content: const Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text('¿Quiere eliminar definitivamente el registro?'),
+                Text(
+                    '¿Seguro que quieres eliminar a este estudiante de la lista?'),
                 SizedBox(height: 10),
               ],
             ),
             actions: [
               TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('Cancelar')),
-              TextButton(
                   onPressed: () {
-                    noteService.deleteNoteById(id);
+                    studentService.deleteStudentById(id);
                     Navigator.pop(context);
                   },
-                  child: const Text('Ok')),
+                  child: const Text('Si')),
+              TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('No')),
             ],
           );
         });
@@ -49,27 +50,27 @@ class _ListNotes extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    NotesService noteService = Provider.of<NotesService>(context);
+    StudentService studentService = Provider.of<StudentService>(context);
     //noteService.loadNotes();
-    final notes = noteService.notes;
+    final students = studentService.students;
 
     return ListView.builder(
-      itemCount: notes.length,
+      itemCount: students.length,
       itemBuilder: (_, index) => ListTile(
-        leading: const Icon(Icons.note),
-        title: Text(notes[index].title),
-        subtitle: Text(notes[index].id.toString()),
+        leading: const Icon(Icons.person),
+        title: Text("${students[index].nombre} ${students[index].apellido}"),
+        subtitle: Text("${students[index].edad} años"),
         trailing: PopupMenuButton(
           // icon: Icon(Icons.fire_extinguisher),
           onSelected: (int i) {
             if (i == 0) {
-              noteService.selectedNote = notes[index];
+              studentService.selectedStudent = students[index];
               Provider.of<ActualOptionProvider>(context, listen: false)
                   .selectedOption = 1;
               return;
             }
 
-            displayDialog(context, noteService, notes[index].id!);
+            displayDialog(context, studentService, students[index].id!);
           },
           itemBuilder: (context) => [
             const PopupMenuItem(value: 0, child: Text('Actualizar')),
